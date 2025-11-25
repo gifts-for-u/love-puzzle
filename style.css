@@ -1,0 +1,317 @@
+:root {
+    --bg-color: #ffd1ff;
+    --frame-color: #523022;
+    --inner-bg: #ffffff;
+    --slot-outline: #e0e0e0;
+    --text-color: #523022;
+    --font-main: 'Plus Jakarta Sans', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding: 20px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+    gap: 24px;
+}
+
+.top-hint {
+    font-size: 2.25rem;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 100px;
+}
+
+/* Puzzle Frame */
+.puzzle-container {
+    position: relative;
+    padding: 15px;
+    background-color: var(--frame-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(82, 48, 34, 0.2);
+}
+
+.puzzle-frame {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    width: 300px;
+    height: 300px;
+    background-color: var(--inner-bg);
+    position: relative;
+    overflow: hidden; /* Ensures the revealed image stays within bounds */
+}
+
+.puzzle-slot {
+    width: 100%;
+    height: 100%;
+    border: 1px dashed var(--slot-outline);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2; /* Above the reveal image initially */
+}
+
+.puzzle-slot.filled {
+    border: none;
+}
+
+.hint-shape {
+    position: absolute;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.2;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Revealed Image */
+.puzzle-image-reveal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('assets/puzzle-image.jpg'); /* Placeholder path */
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.puzzle-image-reveal.visible {
+    opacity: 1;
+    z-index: 10; /* Bring to front on completion */
+}
+
+/* Pieces Area */
+.pieces-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 120px; /* Space for pieces */
+    padding: 10px;
+}
+
+.puzzle-piece {
+    width: 90px; /* Slightly smaller than slot to fit easily in pieces area */
+    height: 90px;
+    background-color: transparent; /* Changed from white */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    /* border: 1px solid rgba(0,0,0,0.1); Removed border */
+    border-radius: 0; /* Removed radius as shape is defined by image */
+    cursor: grab;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2)); /* Use filter for irregular shapes */
+    transition: transform 0.2s, filter 0.2s;
+    touch-action: none; /* Important for touch drag */
+}
+
+.puzzle-piece.dragging {
+    opacity: 0;
+}
+
+.puzzle-piece:active {
+    cursor: grabbing;
+    transform: scale(1.05);
+    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+    z-index: 100;
+}
+
+.puzzle-piece.placed {
+    position: absolute;
+    cursor: default;
+    box-shadow: none;
+    filter: none;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    z-index: 5;
+}
+
+/* --- Individual Piece Sizing & Positioning --- */
+/* 
+   Grid Layout Indices:
+   0 1 2
+   3 4 5
+   6 7 8
+*/
+
+/* Piece 0 (Top-Left) */
+.puzzle-slot[data-index="0"] .hint-shape, 
+.puzzle-slot[data-index="0"] .puzzle-piece.placed {
+    top: -20px;
+    left: 0;
+    width: 135.5%;
+    height: 135.5%;
+}
+
+/* Piece 1 (Top-Middle) */
+.puzzle-slot[data-index="1"] .hint-shape, 
+.puzzle-slot[data-index="1"] .puzzle-piece.placed {
+    top: -3px;
+    left: auto;
+    width: 105%;
+    height: 100%;
+}
+
+/* Piece 2 (Top-Right) */
+.puzzle-slot[data-index="2"] .hint-shape, 
+.puzzle-slot[data-index="2"] .puzzle-piece.placed {
+    top: -20px;
+    right: 0;
+    left: auto;
+    width: 135.5%;
+    height: 135.5%;
+}
+
+/* Piece 3 (Middle-Left) */
+.puzzle-slot[data-index="3"] .hint-shape, 
+.puzzle-slot[data-index="3"] .puzzle-piece.placed {
+    top: -38.5%;
+    left: -16%;
+    width: 135.5%;
+    height: 175.5%;
+}
+
+/* Piece 4 (Center) */
+.puzzle-slot[data-index="4"] .hint-shape, 
+.puzzle-slot[data-index="4"] .puzzle-piece.placed {
+    top: -35.25%; /* Calculated to center 170.5% */
+    left: -35.25%;
+    width: 170.5%;
+    height: 170.5%;
+}
+
+/* Piece 5 (Middle-Right) */
+.puzzle-slot[data-index="5"] .hint-shape, 
+.puzzle-slot[data-index="5"] .puzzle-piece.placed {
+    top: -38.5%;
+    right: -16%;
+    left: auto;
+    width: 135.5%;
+    height: 175.5%;
+}
+
+/* Piece 6 (Bottom-Left) */
+.puzzle-slot[data-index="6"] .hint-shape, 
+.puzzle-slot[data-index="6"] .puzzle-piece.placed {
+    bottom: -20px;
+    top: auto;
+    left: 0;
+    width: 135.5%;
+    height: 135.5%;
+}
+
+/* Piece 7 (Bottom-Middle) */
+.puzzle-slot[data-index="7"] .hint-shape, 
+.puzzle-slot[data-index="7"] .puzzle-piece.placed {
+    bottom: -3px;
+    top: auto;
+    left: 0;
+    width: 105%;
+    height: 100%;
+}
+
+/* Piece 8 (Bottom-Right) */
+.puzzle-slot[data-index="8"] .hint-shape, 
+.puzzle-slot[data-index="8"] .puzzle-piece.placed {
+    bottom: -20px;
+    top: auto;
+    right: 0;
+    left: auto;
+    width: 135.5%;
+    height: 135.5%;
+}
+
+/* Messages */
+.message-container {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease, transform 1s ease;
+}
+
+.message-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.progress-message {
+    height: 24px; /* Fixed height to prevent layout shift */
+    font-size: 1.1rem;
+    color: #d63384;
+    font-weight: 600;
+    margin-bottom: 10px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    text-align: center;
+}
+
+.progress-message.visible {
+    opacity: 1;
+}
+
+.message-container.hidden {
+    display: none; /* Completely hide initially to not take up space? Or just opacity? 
+                      User requirement: "Hidden until..." usually implies display:none or visibility:hidden 
+                      to avoid layout shifts, but here we want it to appear below. 
+                      Let's use display:none initially via JS or CSS class, then fade in. */
+    display: none;
+}
+
+.custom-message {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: var(--text-color);
+}
+
+.love-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #d63384; /* A slightly deeper pink/red for emphasis */
+}
+
+/* Responsive */
+@media (max-width: 400px) {
+    .puzzle-frame {
+        width: 270px;
+        height: 270px;
+    }
+    
+    .puzzle-piece {
+        width: 80px;
+        height: 80px;
+    }
+}
